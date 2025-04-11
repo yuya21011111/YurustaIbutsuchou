@@ -1420,6 +1420,9 @@
     <script>
         window.relicsByCharId = @json(collect($characters)->mapWithKeys(fn($c) => [$c['id'] => $c['relics']])->toArray());
     </script>
+    <footer class="footer">
+        @include('layouts.footer')
+    </footer>
 </body>
 
 </html>
