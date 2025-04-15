@@ -74,18 +74,20 @@
             <h2 class="text-xl font-bold text-blue-200">🛠 更新履歴</h2>
 
             <div class="space-y-4">
+                @foreach($memos as $memo)
                 <div class="border-l-4 border-indigo-400 pl-4">
-                    <p class="text-sm text-gray-400">2025/04/11</p>
-                    <p><span class="font-semibold text-white">v1.0</span> - 初回リリース。UIDから最大キャラ情報取得＋遺物スコア計算を実装。</p>
+                    <p class="text-sm text-gray-400">{{ $memo->date }}</p>
+                    <p><span class="font-semibold text-white">{{ $memo->version }}</span> {{ $memo->memo }}</p>
                 </div>
-                <div class="border-l-4 border-indigo-400 pl-4">
+                @endforeach
+                {{-- <div class="border-l-4 border-indigo-400 pl-4">
                     <p class="text-sm text-gray-400">2025/04/12</p>
                     <p><span class="font-semibold text-white">v1.1</span> - トップページデザインを宇宙風にリニューアル＋キャラ画像表示。</p>
-                </div>
-                <div class="border-l-4 border-indigo-400 pl-4">
+                </div> --}}
+                {{-- <div class="border-l-4 border-indigo-400 pl-4">
                     <p class="text-sm text-gray-400">2025/04/13</p>
                     <p><span class="font-semibold text-white">v1.2</span> - 更新履歴セクションを追加。スマホ表示時のレイアウト調整。</p>
-                </div>
+                </div> --}}
             </div>
         </div>
 

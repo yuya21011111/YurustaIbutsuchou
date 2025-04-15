@@ -24,8 +24,8 @@
 
 ## 技術スタック
 
-- PHP 8.2.12  / Laravel 10.48.29
-- Bladeテンプレート
+- PHP 8.2.12  / Laravel 10.48.29 / JavaScript
+- Blade
 - TailwindCSS
 - 外部API: [mihomo API](https://api.mihomo.me/)（キャラデータ取得）
 

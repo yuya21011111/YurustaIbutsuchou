@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MihoyoController;
+use App\Models\Memo;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,7 +16,8 @@ use App\Http\Controllers\MihoyoController;
 */
 
 Route::get('/', function () {
-    return view('top');
+    $memos = Memo::orderBy('date', 'desc')->get();
+    return view('top', compact('memos'));
 });
 
 Route::get('/player/{uid}', [MihoyoController::class, 'show'])->name('player.show');
