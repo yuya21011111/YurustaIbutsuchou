@@ -31,7 +31,7 @@
         <!-- UID入力フォーム -->
         <div
             class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-xl p-6 sm:p-8 mb-10 text-white">
-            <h2 class="text-xl font-semibold mb-4 text-center text-blue-200">📩 UIDを入力してスコアをチェック！</h2>
+            <h2 class="text-xl font-semibold mb-4 text-center text-blue-200">📩 UIDを入力してスコアをチェック！【テストUID: 807624117】</h2>
             <form method="GET" action="{{ route('player.show', ['uid' => 'dummy']) }}"
                 onsubmit="return redirectToPlayer(event)">
                 <input type="text" name="uid" id="uid-input" placeholder="ゲーム内UIDを入力" required
@@ -55,7 +55,7 @@
                 スコア計算の基準は、
                 <a href="https://game8.jp/houkaistarrail/625727" target="_blank"
                     class="text-blue-400 underline hover:text-blue-300">Game8様の評価値</a> に準拠。
-                メインステは固定スコア1、サブは重要度に応じてスコアリングされます。
+                メインステは固定スコア1、サブは評価値に応じてスコアリングされます。
             </p>
 
             <h3 class="text-lg font-bold text-pink-200 mt-6 mb-2">⚠️ ご注意ください</h3>

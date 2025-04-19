@@ -18,7 +18,7 @@ use App\Models\Memo;
 Route::get('/', function () {
     $memos = Memo::orderBy('date', 'desc')->get();
     return view('top', compact('memos'));
-});
+})->name('top');
 
 Route::get('/player/{uid}', [MihoyoController::class, 'show'])->name('player.show');
 Route::post('/score/recalculate', [MihoyoController::class, 'recalculate'])->name('score.recalculate');

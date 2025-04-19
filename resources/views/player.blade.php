@@ -130,17 +130,22 @@
                 再読み込み
             </button>
         </form>
-        <a href="{{ url('/') }}" class="mt-4 inline-block bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+        <a href="{{ route('top') }}" class="mt-4 inline-block bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
             トップに戻る
         </a>
     </div>
 @else
     <body class="bg-blue-100 min-h-screen p-4 sm:p-6">
+        <div class="flex justify-end mt-4">
+            <a href="{{ route('top') }}" class="inline-block bg-red-400 text-white px-8 py-2 rounded hover:bg-red-600">
+                トップに戻る
+            </a>
+        </div>
         <h2 class="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-center">キャラクター一覧</h2>
 
         <!-- 重み設定フォーム -->
         <form method="GET" class="mb-6 max-w-4xl mx-auto bg-white p-4 rounded-xl shadow-md">
-            <h3 class="text-lg sm:text-xl font-bold mb-3">サブステータス重み設定</h3>
+            <h3 class="text-lg sm:text-xl font-bold mb-3">サブステータス評価値設定</h3>
             @foreach ($characters as $char)
                 @php $charId = $char['id']; @endphp
                 <details class="mb-4">
