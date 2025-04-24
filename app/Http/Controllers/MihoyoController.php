@@ -21,7 +21,7 @@ class MihoyoController extends Controller
     public function show(Request $request, $uid)
     {
         try {
-            $response = Http::timeout(5)->get("h://api.mihomo.me/sr_info_parsed/{$uid}?lang=jp");
+            $response = Http::timeout(5)->get("https://api.mihomo.me/sr_info_parsed/{$uid}?lang=jp");
 
             if ($response->successful()) {
                 $data = $response->json();
