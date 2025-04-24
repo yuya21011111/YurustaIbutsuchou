@@ -330,7 +330,7 @@
         </script>
 
         <footer class="footer">
-            @include('layouts.footer')
+            @include('Layouts.footer')
         </footer>
     </body>
 
