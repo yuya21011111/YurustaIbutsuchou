@@ -41,42 +41,42 @@
         }
 
         function updateRelicDisplay(charId, relics) {
-    const container = document.getElementById(`relic-list-${charId}`);
-    if (!container) return;
+            const container = document.getElementById(`relic-list-${charId}`);
+            if (!container) return;
 
-    container.innerHTML = relics.map(r => {
-        const total = parseFloat(r.score.total || 0).toFixed(1);
-        const main = parseFloat(r.score.main || 0).toFixed(1);
-        const sub = parseFloat(r.score.sub || 0).toFixed(1);
-        let grade = 'D';
-        if (total >= 100) grade = 'SS';
-        else if (total >= 90) grade = 'S';
-        else if (total >= 60) grade = 'A';
-        else if (total >= 40) grade = 'B';
-        else if (total >= 10) grade = 'C';
+            container.innerHTML = relics.map(r => {
+                const total = parseFloat(r.score.total || 0).toFixed(1);
+                const main = parseFloat(r.score.main || 0).toFixed(1);
+                const sub = parseFloat(r.score.sub || 0).toFixed(1);
+                let grade = 'D';
+                if (total >= 100) grade = 'SS';
+                else if (total >= 90) grade = 'S';
+                else if (total >= 60) grade = 'A';
+                else if (total >= 40) grade = 'B';
+                else if (total >= 10) grade = 'C';
 
-        let color = 'text-red-500';
-        if (total >= 100) color = 'text-yellow-500';
-        else if (total >= 90) color = 'text-purple-500';
-        else if (total >= 60) color = 'text-blue-500';
-        else if (total >= 40) color = 'text-green-500';
-        else if (total >= 10) color = 'text-gray-500';
+                let color = 'text-red-500';
+                if (total >= 100) color = 'text-yellow-500';
+                else if (total >= 90) color = 'text-purple-500';
+                else if (total >= 60) color = 'text-blue-500';
+                else if (total >= 40) color = 'text-green-500';
+                else if (total >= 10) color = 'text-gray-500';
 
-        const iconUrl = r.icon ? `{{ asset('') }}` + r.icon : '';
+                const iconUrl = r.icon ? `{{ asset('') }}` + r.icon : '';
 
-        // メイン効果の表示
-        const mainAffixHtml = r.main_affix
-            ? `<div class="text-xs text-gray-700 mt-1">メイン効果: ${r.main_affix.name} ${r.main_affix.display}</div>`
-            : '';
+                // メイン効果の表示
+                const mainAffixHtml = r.main_affix ?
+                    `<div class="text-xs text-gray-700 mt-1">メイン効果: ${r.main_affix.name} ${r.main_affix.display}</div>` :
+                    '';
 
-        // サブステータスの表示
-        const subAffixHtml = r.sub_affix?.length
-            ? `<div class="grid grid-cols-2 gap-1 mt-1 text-xs text-gray-600">
+                // サブステータスの表示
+                const subAffixHtml = r.sub_affix?.length ?
+                    `<div class="grid grid-cols-2 gap-1 mt-1 text-xs text-gray-600">
                     ${r.sub_affix.map(sub => `<div>${sub.name}: ${sub.display}</div>`).join('')}
-               </div>`
-            : '';
+               </div>` :
+                    '';
 
-        return `
+                return `
             <div class="bg-gray-100 rounded-lg px-3 py-2 flex flex-col mb-2">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-2">
@@ -93,8 +93,8 @@
                 ${subAffixHtml}
             </div>
         `;
-    }).join('');
-}
+            }).join('');
+        }
 
         function updateTotalScore(charId, relics) {
             const totalScore = relics.reduce((sum, r) => sum + parseFloat(r.score?.total || 0), 0);
@@ -130,11 +130,13 @@
                 再読み込み
             </button>
         </form>
-        <a href="{{ route('top') }}" class="mt-4 inline-block bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+        <a href="{{ route('top') }}"
+            class="mt-4 inline-block bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
             トップに戻る
         </a>
     </div>
 @else
+
     <body class="bg-blue-100 min-h-screen p-4 sm:p-6">
         <div class="flex justify-end mt-4">
             <a href="{{ route('top') }}" class="inline-block bg-red-400 text-white px-8 py-2 rounded hover:bg-red-600">
@@ -142,6 +144,14 @@
             </a>
         </div>
         <h2 class="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-center">キャラクター一覧</h2>
+
+        @if (isset($mode) && $mode === 'api')
+            <p class="text-center text-sm text-green-600 mb-4">現在表示中：<strong>APIモード</strong></p>
+        @elseif(isset($mode) && $mode === 'saved')
+            <p class="text-center text-sm text-yellow-600 mb-4">現在表示中：<strong>セーブモード（保存データ）</strong></p>
+        @elseif(isset($mode) && $mode === 'error')
+            <p class="text-center text-sm text-red-600 mb-4">現在表示中：<strong>エラー</strong></p>
+        @endif
 
         <!-- 重み設定フォーム -->
         <form method="GET" class="mb-6 max-w-4xl mx-auto bg-white p-4 rounded-xl shadow-md">
@@ -156,19 +166,19 @@
                     </summary>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-2">
                         @foreach ([
-                            'HPDelta' => 'HP実数',
-                            'AttackDelta' => '攻撃実数',
-                            'DefenceDelta' => '防御実数',
-                            'HPAddedRatio' => 'HP%',
-                            'AttackAddedRatio' => '攻撃%',
-                            'DefenceAddedRatio' => '防御%',
-                            'CriticalChanceBase' => '会心率',
-                            'CriticalDamageBase' => '会心ダメ',
-                            'StatusProbabilityBase' => '効果命中',
-                            'BreakDamageAddedRatioBase' => '撃破特効',
-                            'StatusResistanceBase' => '効果抵抗',
-                            'SpeedDelta' => '速度',
-                        ] as $key => $label)
+        'HPDelta' => 'HP実数',
+        'AttackDelta' => '攻撃実数',
+        'DefenceDelta' => '防御実数',
+        'HPAddedRatio' => 'HP%',
+        'AttackAddedRatio' => '攻撃%',
+        'DefenceAddedRatio' => '防御%',
+        'CriticalChanceBase' => '会心率',
+        'CriticalDamageBase' => '会心ダメ',
+        'StatusProbabilityBase' => '効果命中',
+        'BreakDamageAddedRatioBase' => '撃破特効',
+        'StatusResistanceBase' => '効果抵抗',
+        'SpeedDelta' => '速度',
+    ] as $key => $label)
                             <div class="flex items-center justify-between">
                                 <label class="text-sm w-24">{{ $label }}</label>
                                 <input type="number" step="0.1" min="0" max="1"
@@ -204,7 +214,8 @@
                         </button>
 
                         <div id="char-detail-{{ $index }}" class="p-4 hidden">
-                            <h3 class="text-lg sm:text-xl font-bold mb-2">{{ $char['name'] }} Lv.{{ $char['level'] }}</h3>
+                            <h3 class="text-lg sm:text-xl font-bold mb-2">{{ $char['name'] }} Lv.{{ $char['level'] }}
+                            </h3>
 
                             @if (isset($char['light_cone']))
                                 <div class="flex items-start gap-3 mb-4">
@@ -213,7 +224,8 @@
                                     <div>
                                         <div class="text-sm font-bold">{{ $char['light_cone']['name'] }}</div>
                                         <div class="text-xs text-gray-600">
-                                            Lv.{{ $char['light_cone']['level'] }} / 重ね: {{ $char['light_cone']['rank'] }}
+                                            Lv.{{ $char['light_cone']['level'] }} / 重ね:
+                                            {{ $char['light_cone']['rank'] }}
                                         </div>
                                         <div class="text-xs text-gray-700 mt-1">
                                             {{ $char['light_cone']['desc'] ?? '説明なし' }}
@@ -281,7 +293,8 @@
                                                     <span class="font-semibold text-xs">{{ $relic['name'] }}</span>
                                                 </div>
                                                 <div class="text-xs text-right text-gray-700">
-                                                    メイン: {{ number_format($m, 1) }} / サブ: {{ number_format($s, 1) }}<br>
+                                                    メイン: {{ number_format($m, 1) }} / サブ:
+                                                    {{ number_format($s, 1) }}<br>
                                                     合計: <span
                                                         class="font-bold {{ $color }}">{{ number_format($t, 1) }}</span>
                                                     <span class="{{ $color }}">{{ $grade }}</span>

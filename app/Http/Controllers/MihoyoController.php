@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use App\Services\RelicScoreService;
+use App\Models\SavedPlayer;
+
 
 class MihoyoController extends Controller
 {
@@ -15,20 +18,17 @@ class MihoyoController extends Controller
         $this->relicService = $relicService;
     }
 
-
     public function show(Request $request, $uid)
     {
         try {
-            $response = Http::timeout(5)->get("https://api.mihomo.me/sr_info_parsed/{$uid}?lang=jp");
+            $response = Http::timeout(5)->get("h://api.mihomo.me/sr_info_parsed/{$uid}?lang=jp");
 
             if ($response->successful()) {
                 $data = $response->json();
 
-                if (!isset($data['player']) || !isset($data['characters'])) {
-                    return view('player', [
-                        'player' => null,
-                        'error' => '現在メンテナンス中です。しばらくしてから再度お試しください。',
-                    ]);
+                // APIは成功したが、player または characters が空の場合はDBから復元
+                if (empty($data['player']) || empty($data['characters'])) {
+                    throw new \Exception('APIレスポンスにプレイヤーまたはキャラ情報が含まれていません');
                 }
 
                 $player = $data['player'];
@@ -55,25 +55,70 @@ class MihoyoController extends Controller
                         $totalScore >= 60 => 'C',
                         default => 'D',
                     };
-
                     $characters[$index]['weights'] = $weights;
                 }
 
-                return view('player', compact('player', 'characters'));
-            } else {
-                // APIが応答したけど status code が 200 以外
+                // 成功時にDB保存
+                SavedPlayer::updateOrCreate(
+                    ['uid' => $uid],
+                    ['player_data' => json_encode(['player' => $player, 'characters' => $characters], JSON_UNESCAPED_UNICODE)]
+                );
+
                 return view('player', [
-                    'player' => null,
-                    'error' => '現在メンテナンス中です。しばらくしてから再度お試しください。',
+                    'player' => $player,
+                    'characters' => $characters,
+                    'mode' => 'api'
                 ]);
+            } else {
+                throw new \Exception('APIが失敗ステータスを返しました');
             }
         } catch (\Throwable $e) {
-            // ここではエラー詳細はログにだけ残しておく
-            \Log::error('API取得エラー', ['uid' => $uid, 'exception' => $e]);
+            Log::error('API取得エラー', ['uid' => $uid, 'exception' => $e]);
 
+            // DBから保存データを取得（あれば）
+            $saved = SavedPlayer::where('uid', $uid)->first();
+            if ($saved) {
+                $savedData = json_decode($saved->player_data, true);
+                $player = $savedData['player'] ?? null;
+                $characters = $savedData['characters'] ?? [];
+
+                $service = new RelicScoreService();
+
+                foreach ($characters as $index => $char) {
+                    $charId = $char['id'];
+                    $weights = []; // 重みは保存されていない前提
+                    $totalScore = 0;
+
+                    foreach ($char['relics'] ?? [] as $relicIndex => $relic) {
+                        $score = $service->calculateRelicScore($relic, $weights);
+                        $characters[$index]['relics'][$relicIndex]['score'] = $score;
+                        $totalScore += $score['total'] ?? 0;
+                    }
+
+                    $characters[$index]['sumScore'] = round($totalScore, 1);
+                    $characters[$index]['sumGrade'] = match (true) {
+                        $totalScore >= 600 => 'SS',
+                        $totalScore >= 540 => 'S',
+                        $totalScore >= 360 => 'A',
+                        $totalScore >= 240 => 'B',
+                        $totalScore >= 60 => 'C',
+                        default => 'D',
+                    };
+                    $characters[$index]['weights'] = $weights;
+                }
+
+                return view('player', [
+                    'player' => $player,
+                    'characters' => $characters,
+                    'mode' => 'saved'
+                ]);
+            }
+
+            // DBにもない場合は完全に失敗
             return view('player', [
                 'player' => null,
                 'error' => '現在メンテナンス中です。しばらくしてから再度お試しください。',
+                'mode' => 'error'
             ]);
         }
     }
@@ -81,7 +126,6 @@ class MihoyoController extends Controller
 
     public function recalculate(Request $request)
     {
-
         $weights = $request->input('weights', []);
         $relics = $request->input('relics', []);
 
@@ -93,4 +137,5 @@ class MihoyoController extends Controller
 
         return response()->json($relics);
     }
+
 }
