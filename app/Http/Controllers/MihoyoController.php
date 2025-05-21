@@ -26,6 +26,9 @@ class MihoyoController extends Controller
             if ($response->successful()) {
                 $data = $response->json();
 
+                // $data['player'] = [];
+                // $data['characters'] = [];
+
                 // APIは成功したが、player または characters が空の場合はDBから復元
                 if (empty($data['player']) || empty($data['characters'])) {
                     throw new \Exception('APIレスポンスにプレイヤーまたはキャラ情報が含まれていません');
@@ -59,9 +62,17 @@ class MihoyoController extends Controller
                 }
 
                 // 成功時にDB保存
+                // SavedPlayer::updateOrCreate(
+                //     ['uid' => $uid],
+                //     ['player_data' => json_encode(['player' => $player, 'characters' => $characters], JSON_UNESCAPED_UNICODE)]
+                // );
+
                 SavedPlayer::updateOrCreate(
                     ['uid' => $uid],
-                    ['player_data' => json_encode(['player' => $player, 'characters' => $characters], JSON_UNESCAPED_UNICODE)]
+                    [
+                        'player_data' => json_encode(['player' => $player, 'characters' => $characters], JSON_UNESCAPED_UNICODE),
+                        'updated_at' => now() // ← これで常に更新される
+                    ]
                 );
 
                 return view('player', [
